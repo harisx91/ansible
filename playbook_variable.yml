@@ -1,0 +1,29 @@
+---
+- name: variable playbook
+  hosts: all
+    # vars_files:
+    # - my_variable.yml
+  tasks:
+    - name: Load variables
+      include_vars:
+        file: /home/srvc/ansible/my_variable.yml
+          
+    - name: create user "{{user_name}}"
+      user:
+        name: "{{user_name}}"
+        state: present
+  
+    - name: Install package "{{package_name}}"
+      yum:
+        name: "{{package_name}}"
+        state: installed
+      vars: 
+        package_name: chrony
+
+    - name: start service "{{service_name}}"
+      systemd:
+        name: "{{service_name}}"
+        state: started
+        enabled: yes
+      vars:
+        service_name: chronyd
