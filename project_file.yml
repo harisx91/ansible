@@ -1,0 +1,134 @@
+---
+- name: Creating a project
+  hosts: dev
+  vars: 
+    deploy_dir: /var/www/html
+  tasks:
+     - name: Create a user
+       user:
+          name: project
+          state: present
+          create_home: yes
+
+     - name: Create directory project
+       file: 
+         path: /home/project/project26
+         state: directory
+         owner: project
+         group: project
+         mode: '0755'
+
+     - name: Create .ssh directory
+       file: 
+         path: /home/project/.ssh
+         state: directory
+         owner: project
+         group: project
+         mode: '0700'
+
+     - name: Give the sudo access to sudo project
+       copy:
+         dest: /etc/sudoers.d/project
+         content: "project ALL=(ALL) NOPASSWD: ALL"
+    #ansible-galaxxy collection 
+    #install communiy.crypto -p mycollections
+    #- name: Generate SSH keypair for project user (for passwordless SSH)
+    #command: ssh-keygen -t rsa -N '' -f /home/project/.ssh/id_rsa
+    #args:
+    #  creates: "/home/project/.ssh/id_rsa"
+    #become_user: project
+
+    #- name: Copy public key to authorized_keys (for passwordless SSH)
+    #command: cp /home/project/.ssh/id_resa.pub /home/project/.ssh/authorized_keys
+    #args:
+    #    creates: "/home/project/.ssh/authorized_keys"
+
+     - name: Generate ssh-keys for user project
+       openssh_keypair:
+          path: /home/project/.ssh/id_rsa
+          type: rsa
+          owner: project
+          group: project
+          mode: '0600'
+       register: key_result #Register result to check success
+
+     - name: set authorized keys
+       authorized_key:
+          user: project
+          state: present
+          key: "{{ lookup('file', 'key_result.key.path' + '.pub') }}"
+       when: key_result is changed #Run only if keys were generated
+
+     - name: install and start chronyd
+       yum:
+        name: "{{ item }}"
+        state: latest
+       loop:
+         - chrony
+         - nmap
+
+     - name: install httpd
+       yum:
+        name: httpd
+        state: installed
+
+     - service:
+         name: "{{ item }}"
+         state: started
+         enabled: yes
+       loop:
+          - httpd
+          - chronyd
+ 
+     - name: Template dynamic index.html
+       template:
+         src: template/index.html.j2
+         dest: "{{ deploy_dir }}/index.html"
+         
+     - name: Add content to index.html
+       copy:
+         dest: "{{ deploy_dir }}/index.html"
+         content: |
+           <html>
+           <body>
+            This is first line<br>
+            Another line<br>
+            New Line<br>
+            Another Line<br>
+            Supposed to be fifth line<br>
+           </body>
+           </html>
+       tags: change_content
+     - name: Adding more content to file
+       lineinfile:
+          path: "{{ deploy_dir }}/index.html"
+          line: | 
+           This is line six using lineinfile module
+           Hello_world
+          insertafter: EOF
+       tags: change_content
+
+     - name: Adding even more lines
+       blockinfile:
+           path: "{{ deploy_dir }}/index.html"
+           block: |
+              This line is using blockinline module
+              Hello_world
+           marker: "# {mark} ANSIBLE MANAGEED BLOCK"
+           insertbefore: EOF
+       tags: change_content
+           
+      
+     - name: reload httpd
+       shell: systemctl reload httpd
+       #tags: change_content
+      
+     - name: Update firewall rules
+       firewalld:
+          service: https
+          state: enabled
+          immediate: yes
+          permanent: yes
+
+       
+       

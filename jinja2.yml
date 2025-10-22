@@ -1,0 +1,30 @@
+#Jina 2 is templating engine that allows us to substitue part 
+#of the string to variables, so it is used for string manipulating
+#This name is {{ my_name  }} -> The name is Haris
+#This name is {{ my_name | upper }} -> The name is HARIS
+#This name is {{ my_name | lower }} -> The name is haris
+#The name is {{ my_name | title }} -> The name is Haris
+#The name is {{ my_name | replace("Haris","Harris") }} -> The name is Harris
+#The name is {{ first_name | default("Ali")}}{{my_name}}->The name is Haris Ali
+
+#List and set based filters
+#{{[1,2,3]} | min }} -> 1
+#{{ [1,2,3] | max }} -> 3
+#{{ [1,2,3,2] | unique }} -> 1,2,3
+#{{ [1,2,3,4] | union([4,5]) }} -> 1,2,3,4,5
+#{{ [1,2,3,4] | intersect([4,5])}} -> 4
+#{{ 100 | random }} -> Random Number
+#{{ ["The","name","is","Haris"] | join (" ") }} -> The name is Haris
+
+#Loop
+#{% for number in [1,2,3,4,5] %}
+#{{ number }}
+#{% endfor %}
+
+#Conditions:
+#{% for number in [0,1,2,3] %}
+#  {% if number == 2 %}
+#    {{ number}}
+#  {% endoif %}
+#{% endfor %}
+

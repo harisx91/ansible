@@ -1,0 +1,58 @@
+---
+- name: Configuring websetserver
+  hosts: dev
+  gather_facts: yes
+  vars:
+    package_name: 
+        - httpd
+        - firewalld
+    srvc_name: 
+        - httpd
+        - firewalld
+    rule: 
+        - https
+        - http
+  tasks:
+    - name: Install the {{package_name}} package
+      yum: 
+        name: "{{item}}"
+        state: latest
+      loop: "{{package_name}}"
+      notify:
+        - start httpd server
+        - start firewalld service
+        - update firewall rule
+
+    - name: Create a file with content
+      copy: 
+        content: "Welcome to {{ansible_fqdn}} on {{ansible_default_ipv4.address}}" 
+        dest: /tmp/index.html.j2
+        remote_src: yes
+
+    - name: Copy index.html
+      template: 
+        src: /tmp/index.html.j2
+        dest: /var/www/html/index.html
+        remote_src: yes
+
+  handlers:   
+    - name: start httpd server
+      systemd:
+        name: httpd
+        state: started
+        enabled: yes
+    
+    - name: start firewalld server
+      systemd:
+        name: firewalld
+        state: started
+        enabled: yes
+    
+    - name: update firewall rule
+      firewalld:
+        service: '{{item}}'
+        immediate: yes
+        permanent: yes
+        enabled: yes
+      loop: "{{rule}}"
+

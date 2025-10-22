@@ -1,0 +1,94 @@
+---
+- name: This is play one
+  hosts: all
+  tasks:
+    - name: Run block devices
+      ping:
+
+    - name: create user marry
+      user:
+        name: james
+        groups: wheel 
+        state: present
+        append: yes
+
+    - name: create a directory
+      file:
+        path: /tmp/dir-new
+        state: directory
+        mode: '755'
+
+    - name: create a file
+      file:
+        path: /tmp/dir-new/new-file5
+        state: touch
+        mode: '640'
+
+    - name: add line in file
+      lineinfile:
+        path: /tmp/dir-new/new-file5
+        line: "I am learning Ansible."
+
+    - name: copy a file
+      copy:
+        src: /etc/hosts
+        dest: /tmp/myhosts
+
+    - name: add contents in /tmp/myhosts
+      copy:
+        dest: /tmp/myhosts
+        content: |
+          "Amazing I am adding new content in a file using copy module"
+          "This is second line"
+          "This is third line"
+
+- name: Configure httpd server
+  hosts: all
+  tasks: 
+    - name: Remove Httpd package
+      yum: 
+        name: httpd
+        state: absent
+          
+    - name: Install httpd package
+      yum:
+        name: httpd
+        state: present
+      notify:
+        - start service
+        - add service to firewall
+        - set selinux
+
+    - name: Add content in the document root
+      copy: 
+        dest: /var/www/html/index.html
+        content: "This is my first line on the page using ansible"
+
+    - name: Add new line in index.html
+      lineinfile:
+        path: /var/www/html/index.html
+        line: "this is testing appending of text"
+
+  handlers:
+    - name: start service
+      systemd: 
+        name: httpd
+        state: started
+        enabled: true
+
+    - name: add service to firewall
+      firewalld:
+        service: http
+        state: enabled
+        permanent: yes
+        immediate: yes
+          # port: 9095/tcp
+
+    - name: set selinux
+      selinux:
+        policy: targeted 
+        state: permissive
+
+          #  - name: Show contents
+          # debug: 
+          # msg: "This is the output: {{ index_result.stdout }}"

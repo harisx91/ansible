@@ -1,0 +1,44 @@
+---
+- name: Create a new LV and VG ang format it and mount it
+  hosts: dev
+  tasks:
+    - name: Create Volume Group
+      lvg:
+        vg: vg_logs
+        pvs:
+          - /dev/sdb
+          - /dev/sdc
+
+    - name: Create a Logical Volume lv_old_logs
+      lvol:
+        lv: lv_old_logs
+        vg: vg_logs
+        size: 500M
+    - name:  Create a Logical Volume lv_new_logs
+      lvol:
+        lv: lv_new_logs
+        vg: vg_logs
+        size: 1G
+    
+    - name: Create filesystem
+      filesystem:
+        fstype: ext4
+        dev: /dev/vg_logs/lv_old_logs
+    - name: Create filesystem on lv_new_logs
+      filesystem:
+        fstype: xfs
+        dev: /dev/vg_logs/lv_new_logs
+    
+    - name: Mount the lv_old_logs on /app/old/logs
+      mount: 
+        fstype: ext4
+        src: /dev/vg_logs/lv_old_logs
+        path: /app/old/logs
+        state: mounted
+    - name: mount the lv_new_logs on /app/new/logs
+      mount: 
+        fstype: xfs
+        src: /dev/vg_logs/lv_new_logs
+        path: /app/new/logs
+        state: mounted
+

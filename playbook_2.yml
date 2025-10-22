@@ -1,0 +1,72 @@
+---
+- name: User management
+  hosts: all
+  tasks:
+    - name: User creation
+      user:
+        name: john
+        uid: 4001
+        state: present
+    
+    - name: Group creatiion
+      group:
+        name: developer
+        state: present
+    
+    - name: Add user to group
+      user:
+        name: john
+        groups: developer
+        append: yes
+
+- name: File Management
+  hosts: all
+  tasks:
+    - name: Create file and set perms
+      file:
+        path: /tmp/my_file
+        state: touch
+        mode: 640
+
+    - name: Create directory and set perms
+      file:
+        path: /tmp/new_directory
+        state: directory
+        mode: 0755
+
+- name: Using copy modules
+  hosts: all
+  tasks:
+    - name: Copying file
+      copy:
+        src: /tmp/my_file
+        dest: /tmp/new_directory
+        remote_src: yes
+
+- name: Remove and install httpd
+  hosts: all
+  tasks: 
+    - name: Remove httpd package
+      yum:
+        name: httpd
+        state: absent
+
+    - name: Install httpd package
+      yum:
+        name: httpd
+        state: present
+
+    - name: Start and enable httpd service
+      service:
+        name: httpd
+        state: started
+        enabled: yes
+
+
+- name: Set SE Linux to Permissive
+  hosts: all
+  tasks:
+     - name: Set SE LINUX to permissive
+       selinux:
+         policy: targeted
+         state: permissive

@@ -1,0 +1,23 @@
+---
+# tasks file for apache
+- name: Install the {{package_name}} package
+  yum: 
+    name: "{{item}}"
+    state: latest
+  loop: "{{package_name}}"
+  notify:
+          - start httpd server
+          - start firewalld service
+          - update firewall rule
+
+- name: Create a file with content
+  copy: 
+    content: "Welcome to {{ansible_fqdn}} on {{ansible_default_ipv4.address}}" 
+    dest: /tmp/index.html.j2
+    remote_src: yes
+
+- name: Copy index.html
+  template: 
+    src: /tmp/index.html.j2
+    dest: /var/www/html/index.html
+    remote_src: yes

@@ -1,0 +1,45 @@
+---
+- name: Creating file
+  hosts: dev
+  tasks: 
+    - name: creating file
+      file:
+        path: /tmp/hello_world.txt
+        state: touch
+        mode: 0640
+    - shell: ls -l /tmp/hello_world.txt
+      register: output_hello
+    - debug:
+        var: output_hello
+
+- name: Adding line to file
+  hosts: dev
+  tasks:
+    - name: Lets add line to file /tmp/hello_world.txt
+      lineinfile:
+        path: /tmp/hello_world.txt
+        line: "This is first line"
+
+    - name: Add more content to the same file
+      copy:
+        dest: /tmp/hello_world.txt
+        content: |
+          This is second line
+
+
+          #--- #find files that are 2 mins old and 1mb in size and copies them
+          #- hosts: web1
+          #tasks:
+          #- name: Find files
+          #find:
+          #paths: /opt/data
+          #age: 2m
+          #size: 1m
+          #recurse: yes
+          #register: file
+          #
+          #- name: Copy files
+          #command: "cp {{ item.path }} /opt"
+          #with_items: "{{ file.files }}"
+
+  

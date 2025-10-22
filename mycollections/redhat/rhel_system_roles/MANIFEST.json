@@ -1,0 +1,44 @@
+{
+ "collection_info": {
+  "namespace": "redhat",
+  "name": "rhel_system_roles",
+  "version": "1.95.7",
+  "authors": [
+   "System Roles Owners <systemroles@lists.fedorahosted.org>"
+  ],
+  "readme": "README.md",
+  "tags": [
+   "system",
+   "collection",
+   "infrastructure",
+   "linux",
+   "monitoring",
+   "networking",
+   "security",
+   "storage"
+  ],
+  "description": "Linux System Roles Ansible Collection",
+  "license": [
+   "GPL-2.0-or-later",
+   "GPL-3.0-only",
+   "GPL-3.0-or-later",
+   "LGPL-3.0-only",
+   "MIT",
+   "BSD-3-Clause"
+  ],
+  "license_file": null,
+  "dependencies": {},
+  "repository": "https://github.com/linux-system-roles/linux-system-roles.github.io/",
+  "documentation": "https://github.com/linux-system-roles/linux-system-roles.github.io/blob/master/README.md",
+  "homepage": "https://linux-system-roles.github.io",
+  "issues": "https://github.com/oracle/oracle-linux"
+ },
+ "file_manifest_file": {
+  "name": "FILES.json",
+  "ftype": "file",
+  "chksum_type": "sha256",
+  "chksum_sha256": "407508e4e169ce8ca987bb74eb8c8b2dd3b59f405e1287c15e93e765c17386b4",
+  "format": 1
+ },
+ "format": 1
+}

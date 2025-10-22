@@ -1,0 +1,22 @@
+---
+- name: Learning line in file
+  hosts: dev
+  tasks:
+    # - name: Create a file
+    #  copy:
+    #    content: | 
+    #     This is first line
+    #     This is second line
+    #     This is third line
+    #    dest: /tmp/new_file.txt
+          
+     - name: Replace a line with regexp
+       lineinfile:
+        path: /tmp/new_file.txt
+        regexp: "^another"
+        line: "third"
+          #register: output_file
+
+          # - name: Display the output of the variable
+          # debug:
+          # var: output_file

@@ -1,0 +1,87 @@
+- name: install firewalld 
+  hosts: dev
+  tasks:
+    - name: Install Firewalld
+      yum:
+        name: firewalld
+        state: present
+
+    - name: start Firewalld
+      service:
+        name: firewalld
+        state: started
+        enabled: yes
+    
+          #- name: start firewalld
+          #firewalld:
+          #name:
+          #port:
+          #immediate: yes
+          #permanent: yes
+          #zone: public or private
+     
+          #- name: configuring for whitelist
+          #firewalld:
+          #source: 192.168.14.0
+          #state: enabled
+          #zone: public
+          #permanent: yes
+          #immediate: yes
+
+          #- name: Block 161/udp
+          #firewalld:
+          #port: 161/udp
+          #zone: block
+          #immediate: yes
+          #permanent: yes
+          #state: enabled
+          
+          #- name: Add source IP to firewall internal zone
+          #firewalld:
+          #source: 192.168.14.0
+          #zone: internal
+          #state: enabled
+          #immediate: yes
+          #permanent: yes
+          #
+          #- name: Add service to firewall
+          #firewalld:
+          #service: https
+          #zone: internal
+          #enabled: yes
+          #permanent: yes
+          #immediate: yes
+          #
+          #- name: Reload the firwalld config
+          #command: firewall-cmd --reload
+
+          #--- 
+          #- hosts: web2
+          #tasks:
+          #- name: Install httpd
+          #yum:
+          #name: '{{ item }}'
+          #state: installed
+          #loop:
+          #- httpd
+          #- firewalld
+          #
+          #- name: start and enabled httpd
+          #service:
+          #name: '{{ item }}'
+          #state: started
+          #enabled: yes
+          #loop:
+          #- httpd
+          #- firewalld
+          #
+          #- name: Change Apache port
+          #replace: 
+          #path: /etc/httpd/conf/httpd.conf
+          #regexp: '^(Listen)\s+80\s*$'
+          #replace: "Listen 8082"
+          #
+          #- name: Restart Apache service
+          #service:
+          #name: httpd
+          #state: restarted 

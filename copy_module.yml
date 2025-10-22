@@ -1,0 +1,15 @@
+---
+- name: copy from control node to target machines
+  hosts: dev
+  tasks:
+    - name: Copying from control node tmp dir to target machine
+      copy:
+        src: /tmp/control-node-file.txt
+        dest: /tmp/control-node-file.txt
+
+
+    - name: copyfrom from target /tmp/control-node-file.txt to /home/srvc/
+      copy:
+        src: /tmp/control-node-file.txt
+        dest: /home/srvc/
+        remote_src: yes

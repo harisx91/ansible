@@ -1,0 +1,54 @@
+---
+- name: This is lab_18 tasks
+  hosts: dev
+  vars: 
+    pv_name:
+      - /dev/sdb
+      - /dev/sdc
+    lv_name:
+      - lv_old_logs
+      - lv_new_logs
+    size: 
+      - 500M
+      - 1G
+    devices: 
+      - /dev/vg_logs/lv_old_logs
+      - /dev/vg_logs/lv_new_logs
+    file_system_type:
+      - ext4
+      - xfs
+    mk_dir:
+      - /app/old/logs
+      - /app/new/log
+  tasks:
+    - name: Create a volume group
+      lvg:
+        vg: vg_logs
+        pvs: '{{ pv_name }}'
+
+    - name: Create a Logical volume name {{ lv_name }}
+      lvol:
+        vg: vg_logs
+        lv: '{{ item}}'
+        size: '{{ size }}'
+      loop: '{{ lv_name }}'
+
+    - name: Create a filesystem
+      filesystem:
+        fstype: '{{ file_system_stype }}'
+        dev: '{{ devices }}'
+
+    - name: Make a {{ mk_dir }} directory
+      file:
+        path: '{{ mk_dir }}'
+        state: directory
+        recurse: yes
+        become_user: yes
+
+    - name: Create a mount on /app/old/logs
+      mount: 
+        fstype: '{{ file_system_type }}'
+        src: '{{ devices }}'
+        path: '{{ mk_dir }}'
+        state: mounted
+      loop: { }

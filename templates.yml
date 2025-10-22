@@ -1,0 +1,9 @@
+---
+- name: Copy locally to the remote managed nodes
+  hosts: dev
+  tasks: 
+    - name: Copy from cn to managed nodes
+      template:
+        src: index.html.j2
+        dest: /var/www/html/index.html
+

@@ -1,0 +1,11 @@
+---
+# vars file for apache 
+package_name:
+    - httpd
+    - firewalld
+srvc_name: 
+    - httpd
+    - firewalld
+rule: 
+    - https
+    - http

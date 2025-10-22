@@ -1,0 +1,82 @@
+---
+- name: Using conditionals
+  hosts: dev
+  vars: 
+    packages:
+      - name: ngnix
+        required: True
+      - name: mysql
+        required: True
+      - name: apache
+        required: False
+  tasks:
+    - name: using conditionals 
+      yum:
+        name: "{{ item.name}}"
+        state: present
+      when: item.required == True
+      loop: '{{ packages}}'
+
+- name: Chec statis of a srvice and email if its down
+  hosts: dev
+  tasks: 
+    - command: service httpd status
+      register: result
+    
+    - mail: 
+        to: admin@company.command
+        subject: Service Alert
+        body: Httpd Service is down
+        when: result.stdout.find('down') != -1 #when output does not contain down, send email
+
+---
+- name: Install apache
+  hosts: all
+  gather_facts: True
+  tasks:
+    - name: install apache2 when Ubuntu
+      package:
+        name: apache2
+        state: present
+      when: ansible_distribution == "Ubuntu"
+    - name: install httpd when CentOS
+      package:
+        name: httpd
+        state: present
+      when: ansible_distribution == "CentOS"
+
+---
+- name: Check if git is missing or not
+  hosts: web2
+  tasks:
+    - name: Check if git is installed
+      shell: rpm -qa git
+      register: check_if_git_installed
+      ignore_errors: true
+
+    - debug: var=check_if_git_installed
+    - shell: echo 'Oops, git is missing' > /tmp/is_git_installed.txt
+      when: check_if_git_installed.rc != 0
+
+    - shell: git --version > /tmp/is_git_installed.txt
+      when: check_if_git_installed.rc == 0
+
+---
+- hosts: web2
+  gather_facts: no
+  vars:
+    remote_dest: /usr/local/bin/report_status.sh
+  tasks:
+    - stat:
+        path: "{{remote_dest}}"
+      register: file_status
+
+    - debug: var=file_status
+    - shell: echo "File report_status.sh is not executable, making it executable..." > /tmp/change.log
+      when: file_status.stat.exists and file_status.stat.executable == false
+
+    - name: Make the script executable
+      file:
+        path: "{{remote_dest}}"
+        mode: 0775
+

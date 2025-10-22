@@ -1,0 +1,14 @@
+---
+- name: Let's get started
+  hosts: all
+  tasks:
+    - name: Group Add
+      group:
+       name: linoop
+       state: present
+    - name: Add user and append the user to group
+      user:
+        name: john
+        state: present
+        groups: linoop
+        append: yes

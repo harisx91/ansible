@@ -1,0 +1,13 @@
+---
+- name: creating Users and groups
+  hosts: dev
+  tasks:
+     - name: Creating user
+       user:
+         name: hello
+         groups: xyz
+
+     - name: creating group
+       group:
+         name: hello-abc
+

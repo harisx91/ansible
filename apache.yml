@@ -1,0 +1,5 @@
+---
+- name: Configuring apache webserver
+  hosts: all
+  roles:
+    - /home/srvc/ansible/roles/apache

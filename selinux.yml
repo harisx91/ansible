@@ -1,0 +1,8 @@
+---
+- name: Set selinux state
+  hosts: all
+  vars:
+    selinux_state: enforcing 
+  roles:
+    - /home/srvc/ansible/roles/linux-system-roles.selinux
+    

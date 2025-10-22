@@ -1,0 +1,39 @@
+---
+- name: getting understanding of setup module
+  hosts: all
+  gather_facts: yes
+  tasks: 
+    - name: hostname
+      setup:
+        filter: "ansible_hostname" 
+
+    - name: print message
+      debug:
+        msg: "Hello world"
+
+    - name: print hostname
+      debug:
+        msg: The host name of the machine is {{ansible_hostname}}
+
+    - name: print hostname with var
+      debug: 
+       var: "{{ansible_hostname}}"
+
+    - name: printing the values
+      copy:
+        dest: /tmp/system_info
+        content: |
+          host_name: "{{ansible_hostname}}"
+          os_name: "{{ansible_distribution}}"
+          version: "{{ansible_distribution_version}}"
+          memory: "{{ansible_memtotal_mb}}"
+          No_of_CPU: "{{ansible_processor}}"
+            # register: print_values <-- this will print the metadata 
+
+    - name: save the values
+      shell: cat /tmp/system_info
+      register: print_values
+
+    - name: print the values
+      debug: 
+        var: print_values

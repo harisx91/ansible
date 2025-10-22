@@ -1,0 +1,100 @@
+---
+- name: Performing multitask
+  hosts: all
+  vars: 
+    user_name: renaldo
+    group_name: football
+    file_name: file_new
+    package_name: httpd
+    service_name: httpd
+    rule: http
+
+  tasks: 
+    - name: Create a User
+      user:
+        name: "{{user_name}}"
+        state: present
+        
+    - name: Validate user
+      shell: id "{{user_name}}"
+      register: user_sandy
+
+    - name: validate sandy
+      debug:
+        msg: "User was created {{ user_sandy.stdout }}"        
+    
+    - name: create a group
+      group:
+        name: "{{group_name}}"
+        state: present
+      notify: add user to group
+
+    - name: Ensure group exist on all nodes
+      shell: grep "{{group_name}}" /etc/group
+      register: group_validation
+
+    - name: Print group on all nodes
+      debug:
+        msg: "The name of the group is {{group_validation.stdout}}"
+    
+    - name: create a file
+      file:
+        path: /tmp/{{file_name}}
+        state: touch
+      notify: copy file in home dir
+    
+    - name: Ensure file exist in the home directory
+      shell: ls -l /home/srvc/{{file_name}}
+      register: file_outout
+
+    - name: print output of file
+      debug:
+        msg: "File is located in {{ file_outout.stdout }}"
+
+    - name: Remove package
+      yum:
+        name: "{{package_name}}"
+        state: absent
+
+    - name: Install a package
+      yum:
+        name: "{{package_name}}"
+        state: present
+      notify:
+        - start service
+        - add service in firewall
+
+          # - name: Ensure package exist
+          # shell: rpm -qa | grep "{{package_name}}"
+          # register: yum_output
+
+          # - name: Output of package that it is installed
+          # debug:
+          # msg: "The package is installed: {{ yum_output.stdout }}"  
+
+  handlers:
+    - name: add user to group
+      user:
+        name: "{{user_name}}"
+        state: present
+        groups: "{{group_name}}"
+        append: yes
+
+    - name: copy file in home dir
+      copy:
+        src: /tmp/{{file_name}}
+        dest: /home/srvc/
+        remote_src: yes
+
+    - name: start service
+      systemd:
+        name: "{{service_name}}"
+        state: started
+        enabled: yes
+
+    - name: add service in firewall
+      firewalld:
+        service: "{{rule}}"
+        state: enabled
+        permanent: true
+        immediate: true

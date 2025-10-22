@@ -1,0 +1,18 @@
+---
+- name: Register variable
+  hosts: all
+  gather: no
+  tasks:
+    - name: Output of a command
+      shell: uname -r
+      register: output_name
+
+    - name: using debug module
+      debug: 
+        msg: "Print the name"
+
+    - name: using debug with var
+      debug:
+        var: output_name.stdout
+
+

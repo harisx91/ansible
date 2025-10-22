@@ -1,0 +1,49 @@
+1) Create a user account project
+user:
+ name: project
+
+2) under /home/project/project26
+file:
+  path: /home/project/project26
+  state: directory
+  
+3) give sudo access to the user project
+user: 
+  name: project
+  groups: wheel
+  append: yes
+
+4) make sure user project can ssh into manage node passwordless
+give access to user in the inventory: host_name ansible_host= ip-address 
+ansible_user=project ansible_ssh_pass=Password
+5) install the tool nmap
+yum:
+  name: nmap
+  state: installed
+6) install and start the service chronyd
+yum:
+   name: chronyd
+   state:installed
+service:
+    name: chronyd
+    state: started
+    enabled: yes
+7) install and configure httpd
+yum:
+   name: httpd
+   state: installed
+copy:
+   src: /var/www/html/index.html
+   content: |
+     this is first line
+8) start httpd service
+service: 
+     name: httpd
+    
+9)make sure firewalld should allow httpd
+firewalld
+10) Add conten in index.html
+   src: /var/www/html/index.html
+   content: |
+     this is first line
+

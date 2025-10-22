@@ -1,0 +1,61 @@
+---
+- name: Archiving files
+  hosts: dev
+  tasks:
+    - name: Archiving files
+      archive: 
+        path: /tmp/file-or-dir-name
+        dest: /home/srvc/name.zip
+        format: zip
+
+    - name: Extracting files
+      unarchive: 
+        src: #file name stord locally on control node
+        dest: /tmp/
+
+    - name: extract data.tar.gz file
+      unarchive:
+        src: /root/data.tar.gz
+        dest: /srv 
+        remote_src: yes #On the remote server [Manage-node]
+
+    - name: Download
+      unarchive:
+         src: https://github.com/kodekloudhub/Hello-World/archive/master.zip
+         dest: /root
+         remote_src: yes
+
+    - name: Creating archive bz2
+      archive:
+      path:
+         - /root/file1.txt
+         - /usr/local/share/file2.txt
+         - /var/log/lastlog
+      dest: /root/files.tar.bz2
+      format: bz2
+
+
+- name: Setup nginx on web 1
+  hosts: web1
+  tasks:
+    - name: Setting up
+      yum:
+        name: nginx
+        state: installed
+    - name: start nginx
+      service:
+        name: nginx
+        state: started
+        enabled: yes
+
+    - name: Extract
+      unarchive:
+        src: /root/nginx.zip
+        dest: /usr/share/nginx/html
+        remote_src = yes
+
+    - name: replace line
+      replace:
+        path: /usr/share/nginx/index.html
+        regexp: This is sample html code
+        replace: This is KoddeKloud Ansible lab

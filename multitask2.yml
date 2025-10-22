@@ -1,0 +1,27 @@
+---
+- name: multitasking playbook
+  hosts: all
+  vars:
+    user_name:
+      - live
+      - jane
+    group_name: mode  
+  tasks:
+    - name: create user
+      user:
+        name: "{{ user_name }}"
+        state: present
+      loop: "{{ user_name }}"
+    - name: create group
+      group:      
+        name: "{{ group_name }}"
+        state: present
+      notify: add user to group
+
+
+  handlers:
+    - name: add user to group
+      user:
+        name: "{{ user_name }}"
+        groups: "{{ group_name }}"
+        append: yes

@@ -1,0 +1,22 @@
+---
+# handlers file for apache
+  
+- name: start httpd server
+  systemd:
+    name: httpd
+    state: started
+    enabled: yes
+
+- name: start firewalld server
+  systemd:
+    name: firewalld
+    state: started
+    enabled: yes
+
+- name: update firewall rule
+  firewalld:
+    service: '{{item}}'
+    immediate: yes
+    permanent: yes
+    enabled: yes
+  loop: "{{rule}}"

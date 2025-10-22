@@ -1,0 +1,89 @@
+#Use the appropriate command to display your present working directory.
+---
+- name: Play number one  This play is present working directory
+  hosts: dev
+  tasks:
+    - name: Use the appropriate command to display your present working directory
+      shell: pwd; uname -r; ls -ld $PWD; ls -al $PWD 
+      register: pwd_output
+      tags: running_command 
+
+    - name: Display pwd output
+      debug:
+        msg: "The current path is : {{ pwd_output.stdout }}" 
+      tags: running_command
+
+- name: Creating a nested directory name Linux
+  hosts: dev
+  tasks:
+    - name: Creating nested dir
+      file: 
+        path: /home/srvc/Linux/Redhat/oel/debian
+        state: directory
+        recurse: yes
+        owner: srvc
+        group: srvc
+        mode: '0755'
+    
+    - name: Creating files
+      file:
+        name: "{{ item }}"
+        state: touch
+        owner: srvc
+        group: srvc
+        mode: '0644'
+      loop: 
+        - file1.txt
+        - pic.jpg
+        - clip.avi
+
+    - name: Create three directories in your home directory “documents”, “images”, and “media”
+      file:
+        path: '{{ item }}'
+        state: directory
+        owner: srvc
+        group: srvc
+        mode: '0755'
+      loop: 
+        - /home/srvc/documents
+        - /home/srvc/images
+        - /home/srvc/media
+    
+    - name: move files from home to their respected dir
+      copy:
+        src: "{{ item.src }}"
+         # - /home/srvc/pic.jpg
+         # - /home/srvc/clip.avi
+        dest: "{{ item.dest }}"
+          #- /home/srvc/images
+          #- /home/srvc/media
+        remote_src: yes
+        owner: srvc
+        group: srvc
+        mode: '0644'
+      loop:
+        - { src: '/home/srvc/file1.txt', dest: '/home/srvc/documents/'}
+        - { src: '/home/srvc/pic.jpg', dest: '/home/srvc/images'}
+        - { src: '/home/srvc/clip.avi', dest: '/home/srvc/media'}
+
+    - name: Create a nested directory structure office/hobby/personal
+      file:
+       path: /home/srvc/office/hobby/personal
+       recurse: yes
+       owner: srvc
+       group: srvc
+       mode: '0755'
+      
+    - name: copy documents/file1.txt and /images/pic.jpg into office and hobby
+      copy:
+        src: '{{ item.src }}'
+        dest: '{{ item.dest }}'
+        owner: srvc
+        group: srvc
+        mode: '0644'
+        remote_src: yes
+      loop:
+       - { src: '/home/srvc/documents/file1.txt', dest: '/home/srvc/office/'}
+       - { src: '/home/srvc/images/pic.jpg' , dest: '/home/srvc/hobby/'}
+
+

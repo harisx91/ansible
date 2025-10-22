@@ -1,0 +1,38 @@
+---
+- name: variable playbook
+  hosts: all
+  vars: 
+    package_name:
+      - httpd
+      - vsftpd
+      - chrony
+    service_name:
+      - httpd
+      - vsftpd
+      - chronyd
+    user_name:
+      - max
+      - rolex
+      - adam
+  tasks:
+    - name: Install a package {{item}}
+      yum:
+        name: "{{item}}"
+        state: latest
+      loop: "{{package_name}}" 
+      tags: package
+    
+    - name: Start service {{item}}
+      systemd:
+        name: "{{item}}"
+        state: started
+        enabled: yes
+      loop: "{{service_name}}"
+      tags: service
+
+    - name: Name of the user is {{item}}
+      user:
+        name: "{{item}}"
+        state: present
+      loop: "{{user_name}}"
+      tags: user   

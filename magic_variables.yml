@@ -1,0 +1,34 @@
+#How do you get variables find on one host? to another host? 
+#Through magic variables 
+#Which variable you will use to get that? hostvars
+
+---
+- name: Print dns server using magic variables
+  hosts: all
+  tasks:
+      - name: Get magic variables using hostvars
+        debug:
+          msg: "{{ hostvars['web2'].dns_server }}"
+          # Get information about other devices like architecture  
+          #msg: "{{ hostvars['web2'].ansible_facts.architecture}}"
+          # Get information about devices
+          #msg: "{{ hostvars['web2'].ansible_facts.devices }}"
+          #Get information about mounts
+          #msg: "{{ hostvars['web2'].ansible_facts.mount }}"
+          #Get information about processors
+          
+          #msg: "{{ hostvars['web2'].ansible_facts.processor }}"
+          #or you can use
+          #msg: "{{ hostvars['web2']['ansible_facts']['processor'] }}"
+          #Both these expressions yield same results
+        
+#Magic variable group return all host under a given group
+          #msg: '{{ groups['americas']}}" 
+
+          #msg: '{{ group_names }}'
+          #Will return all the group name current host is part of
+
+          #inventory_hostname gives you name configured for the host
+          #in the inventory file, not the FQDN 
+          #msg: '{{ inventory_hostname }}'
+

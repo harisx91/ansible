@@ -1,0 +1,22 @@
+---
+- name: Creating files
+  hosts: dev
+  tasks: 
+    - name: creating files
+      file: 
+        path: "{{ item }}"
+        state: touch  
+      loop:
+        - /home/srvc/file_1.txt
+        - /home/srvc/file_2.txt
+
+- name: Creating directories
+  hosts: dev
+  tasks:
+    - name: creating directories
+      file:
+        path: "{{ item }}"
+        recurse: yes
+      loop:
+        - /home/srvc/dir1
+        - /home/srvc/dir2/oel/

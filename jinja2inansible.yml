@@ -1,0 +1,13 @@
+#{{ "/etc/hosts" | basename }} #Gives us file name from full path
+---
+- name: Update dns server
+  hosts: all
+  tasks:
+    - nsupdate:
+      server: "{{ dns_server }}"
+#This is going to run through the inventory file to spit out the
+#information about the DNS server
+
+#Jinja2 Documentation: https://jina.palletsprojects.com/en/2.10.X/templates/#builtin-filters
+#Ansible Documentation: https://docs.ansible.com/ansible/latest/user_guide/playbooks_filters.html#filters-for-formatting-data
+

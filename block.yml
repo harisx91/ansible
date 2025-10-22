@@ -1,0 +1,59 @@
+---
+- name: Generating blocks
+  hosts: dev
+  tasks:
+    - block: #Logically group tasks together
+        - name: Install mysql
+          yum: 
+            name: mysql-server
+            state: present
+        - name: Start MySQL service
+          service:
+            - name: mysql-server
+              state: started
+      become_user: db-user
+      when: ansible_facts['distribution'] == 'CentOS'
+
+    - block: 
+        - name: Install ngnix
+          yum:
+            name: ngnix
+            state: present
+        - name: start nginx service
+          service:
+            name: nginx
+            state: started
+      become_user: web-user
+      when: ansible_facts['distribution'] == 'CentOS'
+      rescue: #Runs when task fails
+        - mail:
+            to: admin@company.com
+            subject: Installation Failed
+            body: DB Install Failed at {{ ansible_failed_task.name }}
+      always:
+        - mail:
+            to: admin@company.com
+            subject: Installation status
+            body: DB Install Status - {{ ansible_failed_result }}
+
+#Run only for CentOS distro
+---
+- name: Install and start
+  hosts: all
+  tasks:
+    - name: Installed httpd
+      when: ansible_facts['distribution'] == 'CentOS'
+      block:
+       - yum:
+          name: httpd
+          state: present
+       - service:
+           name: httpd
+           state: started
+           enabled: yes
+      rescue:
+        - debug:
+            msg: "Playbook has failed for {{ inventory_hostname }} node"
+      
+      #always: Make sure it always runs even if the task befor it fails
+      

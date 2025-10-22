@@ -1,0 +1,13 @@
+---
+- name: Command module examples
+  hosts: all
+    # become: yes
+  tasks:
+    - name: This is first task
+      command: lsblk
+        #to look at block devices
+      register: command_result
+
+    - name: print information
+      debug:
+        msg: System {{ inventory_hostname }} has gateway {{ ansible_default_ipv4.gateway }} and ip address {{ ansible_facts_nameservers }}

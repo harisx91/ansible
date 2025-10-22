@@ -1,0 +1,54 @@
+---
+- name: Learn how to umount and remove a Logical Volume (LV), remove Volume Group (VG) and wipe the filesystem after removing Physical Volume (PV)
+  hosts: dev
+  vars: 
+    pv_name: 
+        - /dev/sdb
+        - /dev/sdc
+    vg_name:
+        - vg_logs
+    lv_name: 
+        - lv_old_logs
+        - lv_new_logs
+    mount_point:
+        - /app/old/logs
+        - /app/new/logs
+  tasks:
+    - name: unmount the {{ mount_point }}
+      mount:
+        name: '{{ item }}'
+        state: absent
+      loop: '{{ mount_point }}'
+
+    - name: Remove Logical volume {{ lv_name }}
+      lvol:
+        vg: '{{ vg_name[0] }}'
+        lv: '{{ item }}'
+        state: absent
+        force: true
+      loop: '{{ lv_name }}'
+
+    - name: Deavtivate volume group
+      command: vgchange -an {{ vg_name[0] }}
+      register: vg_deactivate
+      failed_when: false # Dont fail if VG is not found
+      changed_when: " '0 logical volume' not in vg_deactivate.stdout"
+
+    - name: Remove the Volume Group name {{ vg_name[0] }}
+      command: vgremove -f {{ vg_name[0] }}
+      failed_when: false #Proceed if VG is already inactive
+
+    - name: Remove physical volume {{ pv_name }}
+      shell: pvremove -ff {{ item }}
+      loop: '{{ pv_name }}'
+
+    - name: Wipe the file system 
+      shell: wipefs -a {{ item }}
+      loop: '{{ pv_name }}'
+      register: wipe_fs
+      changed_when: " 'overwritten' in wipe_fs.stdout"
+      failed_when: false #Proceed if filesystem is already wiped
+
+
+
+      

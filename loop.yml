@@ -1,0 +1,15 @@
+---
+- name: Loops
+  hosts: dev
+  vars:
+    package_name:
+      - a
+      - b
+      - c
+      - c
+  tasks:
+    - name: This is first task
+      debug: 
+        msg: "{{item}}"
+      loop: "{{package_name}}"
+

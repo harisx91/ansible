@@ -1,0 +1,40 @@
+#Control node ip address
+
+#group
+[prod]
+vm-haris-cn 	ansible_host=192.168.13.251	#dns_server=
+
+#Managed nodes ip address
+#group_name
+[dev]
+vm-haris-mn	ansible_host=192.168.14.0	#dns_server=1.1.1.1
+
+#Ansible Parameter:
+#ansible_host
+#ansible_connection
+#ansible_port
+#ansible_user
+##ansible_ssh_password
+
+
+#Different Inventory Format Types
+#INI= INI format is the simplest and most straightforward
+#[webservers]
+#web1.example.com
+#web2.example.com
+#[dbservers]
+#db1.example.com
+#db2.example.com
+#
+#YAML= YAML forwat is more structed and flexible than the INI format
+#all:
+#	children:
+#		webservers:
+#		     hosts:
+#		       web1.example.com
+#		       web2.wxample.com
+#		dbservers:
+#		     hosts:
+#			db1.example.com
+#			db2.example.com
+#
