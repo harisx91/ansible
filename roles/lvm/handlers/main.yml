@@ -1,0 +1,26 @@
+---
+# handlers file for lvm
+- name: Creating filesystem
+  filesystem:
+    fstype: "{{ item.fs_type }}"
+    dev: "/dev/{{ vg_param }}/{{ item.name }}"
+  loop: "{{ lv_param }}"
+  listen: "format and mount LVs"
+
+- name: creating directory  for mount points
+  file:
+    path: '{{ item.mount_point}}'
+    state: directory
+    recurse: yes
+  loop: "{{ lv_param }}"
+  listen: "format and mount LVs"
+
+- name: mouting the LVs
+  mount:
+    src: "/dev/{{ vg_param }}/{{ item.name }}"
+    path: "{{ item.mount_point }}"
+    fstype: "{{ item.fs_type }}"
+    state: mounted
+    #fstab: /etc/fstab
+  loop: '{{ lv_param }}'
+  listen: "format and mount LVs"

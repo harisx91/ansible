@@ -1,0 +1,10 @@
+---
+# vars file for lvm
+disks:
+  - /dev/sdb
+  - /dev/sdc
+vg_param: vg_apps
+lv_param:
+  - { name: lv_web, size: 800M, fs_type: ext4, mount_point: /srv/web }
+  - { name: lv_db, size: 1G, fs_type: xfs, mount_point: /srv/db }
+

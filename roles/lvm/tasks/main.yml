@@ -1,0 +1,19 @@
+---
+# tasks file for lvm
+- name: 
+  lvg:
+    vg: '{{ vg_param }}'
+    pvs: '{{ disks }}'
+  notify:
+    - format and mount LVs
+
+- name:
+  lvol:
+    vg: '{{ vg_param }}'
+    lv: '{{ item.name }}'
+    size: '{{ item.size }}'
+  loop: '{{ lv_param }}'
+  notify: 
+    - format and mount LVs
+
+

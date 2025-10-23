@@ -1,0 +1,5 @@
+---
+- name: Utilizing roles to create lv_name
+  hosts: dev
+  roles:
+    - /home/srvc/ansible/roles/lvm
