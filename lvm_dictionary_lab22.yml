@@ -1,0 +1,47 @@
+---
+- name: Creating Multiple LVs in a Single VG using dictionary variables
+  hosts: dev
+  vars:
+    disks:
+      - /dev/sdb
+      - /dev/sdc
+    vg_param: vg_apps
+    lv_param:
+      - { name: lv_web, size: 800M, fs_type: ext4, mount_point: /srv/web }
+      - { name: lv_db, size: 1G, fs_type: xfs, mount_point: /srv/db }
+  tasks:
+     - name: 
+       lvg:
+          vg: '{{ vg_param }}'
+          pvs: '{{ disks }}'
+     
+     - name:
+       lvol:
+          vg: '{{ vg_param }}'
+          lv: '{{ item.name }}'
+          size: '{{ item.size }}'
+       loop: '{{ lv_param }}'
+
+     - name: 
+       filesystem:
+          fstype: "{{ item.fs_type }}"
+          dev: "/dev/{{ vg_param }}/{{ item.name }}"
+       loop: "{{ lv_param }}"
+
+     - name: Create path
+       file:
+        path: '{{ item.mount_point}}'
+        state: directory
+        recurse: yes
+       loop: "{{ lv_param }}"
+
+     - name:
+       mount:
+          src: "/dev/{{ vg_param }}/{{ item.name }}"
+          path: "{{ item.mount_point }}"
+          fstype: "{{ item.fs_type }}"
+          state: mounted
+          #fstab: /etc/fstab
+       loop: '{{ lv_param }}'
+
+    

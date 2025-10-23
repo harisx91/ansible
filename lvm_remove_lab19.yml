@@ -28,12 +28,11 @@
         force: true
       loop: '{{ lv_name }}'
 
-    - name: Deavtivate volume group
-      command: vgchange -an {{ vg_name[0] }}
-      register: vg_deactivate
-      failed_when: false # Dont fail if VG is not found
-      changed_when: " '0 logical volume' not in vg_deactivate.stdout"
-
+    #- name: Deavtivate volume group
+    #  command: vgchange -an {{ vg_name[0] }}
+    #  register: vg_deactivate
+    #  failed_when: false # Dont fail if VG is not found
+    
     - name: Remove the Volume Group name {{ vg_name[0] }}
       command: vgremove -f {{ vg_name[0] }}
       failed_when: false #Proceed if VG is already inactive
