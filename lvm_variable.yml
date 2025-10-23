@@ -1,0 +1,54 @@
+---
+- name: Create a Volume Group and Logical olume format it and mount it using variables
+  hosts: dev
+  vars: 
+    vg_name: vg_logs
+    lv_name:
+        - lv_old_logs
+        - lv_new_logs
+    lv_size:
+        - 500M
+        - 1G
+    fs_type:
+        - ext4
+        - xfs 
+    mount_point:
+        - /app/old/logs
+        - /app/new/logs
+  tasks:
+    - name: Creating volume group {{ vg_name }} 
+      lvg:
+       vg: '{{ vg_name }}'
+       pvs: ["/dev/sdb", "/dev/sdc"]
+    
+    - name: Creating {{ lv_name }} logical volume
+      lvol:
+        vg: '{{ vg_name }}' 
+        lv: '{{ item.0 }}'
+        size: '{{ item.1 }}'
+      loop: "{{ lv_name | zip(lv_size) | list }}"
+      
+    - name: Creating {{ fs_type }} file system
+      filesystem:
+        fstype: '{{ item.1 }}'
+        dev: '/dev/{{ vg_name }}/{{ item.0 }}'
+      loop: "{{ lv_name | zip(fs_type) | list }}"
+
+    - name: Debug mount loop items
+      ansible.builtin.debug:
+        var: item
+      loop: "{{ lv_name | zip(mount_point) | list }}"
+
+    - name: Creating {{ mount_point }} Mount
+      ansible.builtin.mount:
+        src: "/dev/{{ vg_name }}/{{ lv_name[item.2] }}"
+        path: "{{ item.1 }}"
+        fstype: "{{ fs_type[item.2] }}"
+        state: mounted
+        fstab: /etc/fstab
+      loop: "{{ lv_name | zip(mount_point) | zip([0, 1]) | map('flatten') | list }}"
+
+
+
+
+
