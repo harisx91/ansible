@@ -41,12 +41,12 @@
 
     - name: Creating {{ mount_point }} Mount
       mount:
-        src: "/dev/{{ vg_name }}/{{ lv_name[item.2] }}"
+        src: "/dev/{{ vg_name }}/{{ item.0 }}"
         path: "{{ item.1 }}"
-        fstype: "{{ fs_type[item.2] }}"
+        fstype: "{{ item.2 }}"
         state: mounted
         fstab: /etc/fstab
-      loop: "{{ lv_name | zip(mount_point) | zip([0, 1]) | map('flatten') | list }}"
+      loop: "{{ lv_name | zip(mount_point, fs_type) | list }}"
 
 
 
