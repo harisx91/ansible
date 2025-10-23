@@ -1,0 +1,31 @@
+---
+- name: Extending a logical volume and resizing the filesystem
+  hosts: dev
+  vars: 
+    vg_name: vg_logs
+    lv_name:
+        - lv_old_logs
+        - lv_new_logs
+    lv_size:
+        - 500M
+        - 1G
+    fs_type:
+        - ext4
+        - xfs 
+    mount_point:
+        - /app/old/logs
+        - /app/new/logs
+  tasks:
+    - name: Extending {{ lv_name[0] }} for 
+      lvol:
+        vg: '{{ vg_name }}'
+        lv: '{{ lv_name[0] }}'
+        size: +500M
+        resizefs: true
+
+
+
+
+
+
+

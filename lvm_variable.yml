@@ -40,7 +40,7 @@
       loop: "{{ lv_name | zip(mount_point) | list }}"
 
     - name: Creating {{ mount_point }} Mount
-      ansible.builtin.mount:
+      mount:
         src: "/dev/{{ vg_name }}/{{ lv_name[item.2] }}"
         path: "{{ item.1 }}"
         fstype: "{{ fs_type[item.2] }}"
