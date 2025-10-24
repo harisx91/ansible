@@ -5,7 +5,7 @@
      - name: Creating user
        user:
          name: hello
-         groups: xyz
+         #groups: xyz
 
      - name: creating group
        group:
