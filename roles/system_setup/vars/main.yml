@@ -1,0 +1,11 @@
+---
+# vars file for roles/system_setup
+users_list:
+  - alice
+  - bob
+  - carol
+group_name: linoop
+welcome_file: /tmp/Welcome
+package_name: httpd
+service_name: httpd
+firewalld_service: http

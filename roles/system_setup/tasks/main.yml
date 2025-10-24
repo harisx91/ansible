@@ -1,0 +1,51 @@
+---
+# tasks file for roles/system_setup
+
+- name: Creating {{ users_list }} 
+  user:
+    name: "{{ item }}"
+    state: present
+  loop: "{{ users_list }}"
+  tags: user
+  notify:
+    - Managing users inside groups
+
+- name: creating {{ group_name }} 
+  group:
+    name: "{{ group_name }}"
+    state: present
+  tags: user
+
+- name:
+  copy: 
+    src: "{{ welcome_file }}"
+    dest: "/home/{{ item }}/{{ welcome_file | basename }}"
+    owner: "{{ item }}"
+    group: "{{ item }}"
+  loop: "{{ users_list }}"
+  tags: user
+
+- name: Installing {{ package_name }}
+  yum: 
+    name: "{{ package_name }}"
+    state: present
+  tags: package
+  notify: 
+    - start and enable service 
+
+- name: Adding service to {{ firewalld_service }}
+  firewalld: 
+    service: "{{ firewalld_service }}"
+    state: enabled
+    permanent: yes
+    immediate: yes
+  tags: package
+
+- name: Check SELinux status
+  selinux:
+    policy: targeted
+    state: "{{ 'enforcing' if ansible_selinux.status == 'enabled' else 'disabled' }}"
+  register: selinux_status
+  notify:
+    - Set SELinux to enforcing
+

@@ -1,0 +1,20 @@
+---
+# handlers file for roles/system_setup
+
+- name: Managing users inside groups
+  user:
+    name: "{{ item }}"
+    groups: "{{ group_name }}"
+  loop: "{{ users_list }}" 
+
+- name: start and enable service
+  service:
+    name: "{{ service_name }}"
+    state: started
+    enabled: yes
+
+- name: Set SELinux to enforcing 
+  selinux:
+    policy: targeted 
+    state: enforcing
+  when: selinux_status.changed
