@@ -1,0 +1,284 @@
+---
+- name: Essential Linux Commands
+  hosts: dev
+  tasks:
+    - name: Task#1 Find Linux distribution, version, and kernel release
+      setup: #used the ansible-doc | grep to get all the information
+        filter: 
+          - 'ansible_distribution'
+          - 'ansible_distribution_version'
+          - 'ansible_kernel'
+      register: setup_output
+    - name: Print setup_output information
+      debug:
+        var: setup_output
+      
+    - name: Task#2 Review memory and swap space
+      shell: df -h; swapon -a
+      register: shell_output
+    - debug:
+        var: "The memory space is: {{ shell_output }} and swap memory: {{ shell_output.stdout }}" 
+
+    - name: Task#3 Display current directory, user, and hostname
+      shell: pwd; id ; hostname
+      register: display_system
+    - debug:
+        var: display_system.stdout_lines
+
+    - name: Task#4 Create directory /lab1/docs and /lab1/config
+      file:
+        path: /lab1/docs
+        state: directory
+    - name: create /lab1/config
+      shell: mkdir /lab/config
+
+    - name: Task#5 Copy /etc/passwd into /lab1/docs and rename is passwd.bak
+      copy:
+        src: /etc/passwd 
+        dest: /lab1/docs/passwd.bak
+        remote_src: yes
+
+    - name: task#6 copy .cnf /etc containing "net" into /lab1/config
+      shell: find /etc -type f -name "*net*.conf" -exec cp {} /lab1/config/ \;
+
+    - name: task#7 redirect the output of ls /usr/bin to /lab1/output.txt
+      shell: ls /usr/bin > /lab1/info.txt
+
+    - name: task#8 insert the output of uptime into /lab1/info.txt
+      shell: uptime >> /lab1/info.txt
+
+    - name: task#9 creating hardlink /lab1/docs/hard_passwd to /lab1/docs/passwd.bak
+      shell: ln /lab1/docs/passwd.bak /lab1/docs/hard_passwd
+
+    - name: task#10 create symbolic link /lab1/info.txt /lab1/docs/sym_info
+      shell: ln -s /lab1/info.txt /lab1/docs/sym_info
+
+    - name: task#11 set permissions on /lab1/docs owner can read/write and other have no access
+      shell: chmod 600 /lab1/docs #u=rw,go= 
+
+    - name: Set sticky bit #Special permissions in Linux set on directories, used in cases so others are not allowed to make changes on shared directories
+      shell: chmod +t /lab1/config
+
+- name: Searching, Archiving and Test Aalysis
+  hosts: dev
+  tasks: 
+    - name: Task#13 find files in /etc modified in last 1 day and store results in /lab1/find_results
+      shell: find /etc -type f -mtime -1 >> /lab1/find_results.txt 
+
+    - name: Task#14 archive /lab1/docs and /lab1/config into /root/lab1_backup.tar.gz
+      shell: tar -cvf /root/lab1_backup.tar.gz /lab1/docs /lab1/config
+
+    - name: Task#15 extract the archive into /tmp/lab_restore/
+      shell: tar -xf /root/lab1_backup.tar.gz -C /tmp/lab_restore/
+
+    - name: Task#16 compress /lab1/info.txt 
+      shell: bzip2 /lab1/info.txt  #we can use bzip2 -k to keep the origical file
+      #it will create a zip file at /lab/info.txt replacing the original
+
+    - name: Task#17 checksumrs using md5sum
+      shell: md5sum /etc/passwd /lab1/docs/passwd.bak
+    
+    - name: Task#18 replace "root" with "admin" in /lab1/docs/passwd.bak
+      shell: sed -i "s/root/admin/g" /lab1/docs/passwd.bak
+
+    - name: task#19 grep nologin /etc/passwd
+      shell: grep nologin /etc/passwd
+
+    - name: task#20 use grep -v to exclude all line with bash
+      shell: grep -v bash /etc/passwd
+
+    - name: task#21 Create a cront job for student to run date >>  date >> /tmp/cron_check.txt */5 minutes
+      user:
+        name: student
+        state: present
+    - name: Now creating cron job
+      cron:
+       name: "Logging date every 5 minutes"
+       user: "student"
+       minute: "*/5"
+       job: "date >> /tmp/cron_check.txt"
+       state: present
+      tags: cron
+      
+- name: Users and Groups Management
+  hosts: dev
+  tasks:
+    - name: Task#22  Create devops with UID 1501 and home /home/devops
+      user: 
+        name: devops
+        state: present
+        uid: 1501
+        create_home: /home/devops
+    
+    - name: Taske#23 Create a group engineers and add devops to it
+      group:
+        name: engineers
+        state: present
+      notify: Add user
+
+    - name: Task#24 Enforce password expiration to 30 days for user devops
+      command: chage -M 30 devops
+      #-M is for maximum and -m will be for minimum
+
+    - name: Task#25 Lock the account for devops to simulate access control during onboarding
+      command: usermod -L devops
+      #to unlock we will use -U option after onboarding
+
+  handlers:
+    - name: Add user
+      user:
+        name: devops
+        groups: engineers
+        append: yes
+
+- name: Process and Service Management
+  hosts: dev
+
+  tasks: 
+    - name: Task#26 Display top 5 processes using passwd
+      shell: ps -aux | head -n 5
+
+    - name: Task#27 Run three processes sleep 1000, sleep 2000, sleep 3000
+      shell: sleep 1000; sleep 2000; sleep 3000; pkill sleep
+
+    - name: Task#28 Ensure con and sshd services are running
+      service:
+        name: "{{ item }}"
+        state: started
+        enabled: yes
+      loop:
+        - cron
+        - sshd
+
+- name: Networking Management
+  hosts: dev
+  tasks:
+    - name: Task#29 Configure the hostname of VM “myvm.linoop.local” and display
+      hostname:
+        name: myvm.linoop.local 
+        #OR: hostnamectl set-hostname myvm.linoop.local on command line
+      tags: hostname
+
+    - name: Check hostname
+      command: hostname 
+      #hostname or hostnamectl
+
+    - name: Task#30 Check IP address and routing table.
+      shell: ifconfig; netstat -nr
+      #Get ip address and routing table
+    
+    - name: Task#31 Verify connectivity ping google.com >> /lab1/ping_log.txt
+      shell: ping www.google.com > /lab1/ping_log.txt
+
+    - name: Task#32 verify DNS is working by resolving cnn.com
+      shell: nslookup cnns.com
+
+- name: Security Management
+  hosts: dev
+  tasks:
+    - name: Create .ssh directory
+      file: 
+        path: "/home/devops/.ssh"
+        owner: devops
+        group: devops
+        mode: '0700'
+
+    - name: Task#33 generate SSH key-pair for user devops (no passphrase)
+      openssh_keypair:
+          path: /home/project/.ssh/id_rsa
+          type: rsa
+          owner: devops
+          group: devops
+          mode: '0600'
+      register: key_result #Register result to check success
+      #shell: ssh-keygen -t rsa -N '' -f /home/project/.ssh/id_rsa #-N is for no-passpharase and -f is path to private keys
+      #args:
+        #creates: "/home/devops/.ssh/id_rsa"
+      #become_user: devops 
+
+    - name: Task#34 Configure SSH access from devops to srvc
+      authorized_key:
+          user: srvc
+          state: present
+          key: "{{ lookup('file', '/home/devops/.ssh/id_rsa.pub') }}"
+      when: key_result is changed #Run only if keys were generated
+   # - name: Copy public key to authorized_keys (for passwordless SSH)
+   #   command: cp /home/project/.ssh/id_rsa.pub /home/project/.ssh/authorized_keys
+   #   args:
+   #     creates: "/home/project/.ssh/authorized_keys"
+    - name: Task#35 Allow devops to run all commands as sudo without password
+      copy:
+        dest: /etc/sudoers.d/devops
+        content: "devops ALL=(ALL) NOPASSWD: ALL"
+        mode: '0440' 
+
+    - name: Task#36 Temporarity change the kernel parameter 
+      #sysctl -w vm.swappiness=40 (For temporary)
+      #sysctl -p /etc/sysctl.d/99-swappiness.conf (For persistent)
+      #Swappiness controls kernel aggressiveness in swapping RAM to swap space; higher value will utilize more swap space and lower value will utilize more RAM 
+      lineinfile:
+        path: /etc/sysctl.d/99-swappiness.conf
+        line: "vm.swappiness=40"
+        create: yes
+        mode: '0644'
+
+- name: Accessing Logs & Troubleshooting
+  hosts: dev
+  tasks:
+    - name: Task#37 deiplay last 15 lines of /var/log/messages
+      shell: tail -n 15 /var/log/messages
+
+    - name: Taske#38 monitor /var/log/secure line 
+      shell: tail -f /var/log/secure > /tmp/secure_tail.txt
+
+    - name: Task#39 Identify which service is responsible for writing system Logs
+      shell: systemctl status rsyslog
+      #Collects log messages from kernel, system services and applications and writes them to /var/log/secure /var/log/messages/ /var/log/syslog
+      #"grep rsyslogd /var/log/messages"
+
+- name: Package Management
+  hosts: dev
+  tasks:
+    - name: Task#40 List all installed httpd packaged
+      shell: rpm -qa | grep httpd
+
+    - name: Task#41 Install wget, telnet and nmap using yum
+      yum:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - wget
+        - telnet
+        - nmap
+
+    - name: Task#42 install Development Tools and verify if installed
+      yum: 
+        name: "@Development Tools"
+        state: present
+    - name: verify if installed
+      shell: yum grouplist
+
+- name: Storage Management
+  hosts: dev
+  tasks: 
+    - name: Task#43 Create a 1gb partition /dev/sdb1 and format it as xfs
+      parted:
+        device: /dev/sdb
+        number: 1
+        state: present
+        part_end: 1GiB
+        fs_type: xfs
+
+    - name: 
+         
+
+
+
+
+
+    
+
+
+
+    
+    
