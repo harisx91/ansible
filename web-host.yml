@@ -1,0 +1,5 @@
+---
+- name: running role
+  hosts: all
+  roles:
+    - web-host

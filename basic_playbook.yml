@@ -1,0 +1,24 @@
+---
+- name: 
+  hosts: all
+  vars:
+    users: 
+      - Andrew
+      - tom
+      - jerry
+  tasks:
+    - name: Creating users
+      user:
+        name: "{{ item }}"
+      loop: "{{ users }}"
+
+    - name: copy /etc/resolv
+      copy:
+        src: /etc/resolv.conf
+        dest: /tmp/output_copy
+
+    - name: create file
+      file:
+        path: /tmp/data_db
+        state: touch
+        

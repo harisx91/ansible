@@ -1,0 +1,16 @@
+---
+# tasks file for new-role
+- name: This is first tasks
+  user:
+    name: hello_world2
+    state: present
+
+- name: this is second tasks
+  file:
+    path: /tmp/hello_world.txt
+    state: touch
+
+- name: this is third tasks
+  copy:
+    src: /home/srvc/ansible/file_module.yml
+    dest: /tmp/file_module.yml

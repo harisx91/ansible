@@ -2,7 +2,12 @@
 - name: Set selinux state
   hosts: all
   vars:
-    selinux_state: enforcing 
+    selinux_state: permisive
+    policy: targeted #For a specific program not system wide
   roles:
-    - /home/srvc/ansible/roles/linux-system-roles.selinux
+    - linux-system-roles.selinux
+     #cd /usr/share/anisble/roles
+
+     #create a symbolic link
+     #ln -s /usr/share/ansible/roles/ roles
     

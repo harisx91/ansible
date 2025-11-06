@@ -1,0 +1,7 @@
+---
+# vars file for new-role
+
+timesync_ntp_servers:
+  - hostname: 192.168.15.5
+    iburst: yes
+    state: enabled

@@ -1,0 +1,6 @@
+--- 
+- name: This is new playbook
+  hosts: all
+  roles:
+    - new-role
+    - rhel-system-roles.timesync

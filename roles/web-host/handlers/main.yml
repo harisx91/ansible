@@ -1,0 +1,14 @@
+---
+# handlers file for web-host
+- name: start httpd
+  service:
+    name: httpd
+    state: started
+
+- name: update firewalld
+  firewalld:
+    service: http
+    immediate: yes
+    permanent: yes
+    state: started 
+

@@ -1,0 +1,6 @@
+---
+# vars file for roles/webserver
+web_package: httpd
+web_services: httpd
+web_file_src: files/index.html
+web_file_dest: /var/www/html/index.html

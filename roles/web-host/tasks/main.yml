@@ -1,0 +1,26 @@
+---
+# tasks file for web-host
+- name: 
+  yum:
+    name: httpd
+    state: present
+  notify: start httpd 
+
+- name: install firewalld
+  yum:
+    name: firewalld
+    state: present
+
+- name: state firwalld service
+  service:
+    name: firewalld
+    state: started
+    enabled: yes  
+  notify: update firewalld 
+
+- name: copy contents
+  copy:
+    src: index.html
+    dest: /var/www/html/index.html 
+    
+

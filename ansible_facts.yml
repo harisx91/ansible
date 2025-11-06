@@ -1,7 +1,7 @@
 ---
 - name: Gathering and visualizing ansible facts
-  hosts: all
+  hosts: dev
   tasks:
     - name: Dive deep into ansible facts
       debug:
-        var: ansible_facts.user_uid
+        var: ansible_facts

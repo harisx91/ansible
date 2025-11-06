@@ -1,0 +1,23 @@
+---
+# tasks file for roles/webserver
+- name: Install httpd
+  yum: 
+    name: "{{ web_package }}"
+    state: present
+
+- name: Copy config file
+  copy:
+    src: "{{web_file_src}}"
+    dest: "{{web_file_dest}}"
+  notify: restart httpd 
+
+- name: Set selinux in permissive mode
+  selinux:
+    state: permissive
+    policy: targeted
+
+- name: Stop firewall service
+  service:
+    name: httpd
+    state: stopped
+    enabled: no
